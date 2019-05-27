@@ -57,21 +57,6 @@ const fill = async (bytes: AsyncIterableIterator<number>, n: number = 4): Promis
   return buffer.slice(0, i)
 }
 
-export interface Lexer {
-  next(): Promise<string | null>
-  backup()
-  ignore()
-  peek(n: number): Promise<string | null>
-  content(): string
-  accept(values: string): Promise<boolean>
-  acceptRun(values: string): Promise<boolean>
-  acceptRunUntil(values: string): Promise<boolean>
-}
-
-export const createLexer = (source: Readable, size: number = 2 ** 16): Lexer => {
-  return new StreamLexer(source, size)
-}
-
 class StreamLexer {
   source: AsyncIterableIterator<number>
   buffer: Buffer
@@ -239,4 +224,112 @@ class StreamLexer {
     }
     return utf8.decode(this.buffer.slice(this.start, this.pos))
   }
+}
+
+class PusherImpl<Kind> {
+  tokens: Token<Kind>[]
+
+  constructor() {
+    this.tokens = []
+  }
+
+  push(token: Token<Kind>) {
+    this.tokens.push(token)
+  }
+}
+
+async function* tokens<Kind>(source: Readable, initialState: State<Kind>, size: number) {
+  const lexer = new StreamLexer(source, size)
+  const pusher = new PusherImpl<Kind>()
+
+  let state = initialState
+  while (state) {
+    state = await state.next(lexer, pusher)
+    while (pusher.tokens.length > 0) {
+      yield pusher.tokens.shift()
+    }
+  }
+}
+
+class TokenizerImpl<Kind> {
+  tokens: AsyncIterableIterator<Token<Kind>>
+  cache: Token<Kind> | null
+
+  constructor(source: Readable, initialState: State<Kind>, size: number) {
+    this.tokens = tokens(source, initialState, size)
+  }
+
+  async read(): Promise<Token<Kind>> {
+    const token = await this.tokens.next()
+    if (token.done) {
+      return null
+    }
+
+    return token.value
+  }
+
+  async next(): Promise<Token<Kind>> {
+    if (this.cache) {
+      const cache = this.cache
+      this.cache = null
+      return cache
+    }
+
+    return this.read()
+  }
+
+  async peek(): Promise<Token<Kind>> {
+    if (!this.cache) {
+      this.cache = await this.read()
+    }
+
+    return this.cache
+  }
+}
+
+export interface Lexer {
+  next(): Promise<string | null>
+  backup()
+  ignore()
+  peek(n: number): Promise<string | null>
+  content(): string
+  accept(values: string): Promise<boolean>
+  acceptRun(values: string): Promise<boolean>
+  acceptRunUntil(values: string): Promise<boolean>
+}
+
+export class Token<Kind> {
+  kind: Kind
+  value: string
+
+  constructor(kind: Kind, value: string) {
+    this.kind = kind
+    this.value = value
+  }
+
+  toJSON() {
+    return { kind: this.kind, value: this.value }
+  }
+}
+
+export interface Pusher<Kind> {
+  push(token: Token<Kind>): void
+}
+
+export interface State<Kind> {
+  next(l: Lexer, push: Pusher<Kind>): Promise<State<Kind>>
+}
+
+export interface Tokenizer<Kind> {
+  read(): Promise<Token<Kind>>
+  next(): Promise<Token<Kind>>
+  peek(): Promise<Token<Kind>>
+}
+
+export const createState = <Kind>(fn: (l: Lexer, push: Pusher<Kind>) => Promise<State<Kind>>): State<Kind> => {
+  return { next: fn }
+}
+
+export const createTokenizer = <Kind>(source: Readable, initialState: State<Kind>, size: number = 2 ** 16): Tokenizer<Kind> => {
+  return new TokenizerImpl<Kind>(source, initialState, size)
 }

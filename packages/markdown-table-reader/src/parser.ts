@@ -1,23 +1,23 @@
 import { Readable } from 'stream'
 
-import { TableLexer, TokenKind, Token } from './lexer'
-import { FSWatcher } from 'fs'
+import { Token, Tokenizer } from '@stream/lexer'
+import { tokenizer, Kind } from './lexer'
 
-const createIsFn = (kind: TokenKind) => (token: Token) => token.kind === kind
+const createIsFn = (kind: Kind) => (token: Token<Kind>) => token.kind === kind
 
-const isPipe = createIsFn(TokenKind.PIPE)
-const isNewLine = createIsFn(TokenKind.NEW_LINE)
-const isEOF = createIsFn(TokenKind.EOF)
-const isConstant = createIsFn(TokenKind.CONSTANT)
+const isPipe = createIsFn(Kind.PIPE)
+const isNewLine = createIsFn(Kind.NEW_LINE)
+const isEOF = createIsFn(Kind.EOF)
+const isConstant = createIsFn(Kind.CONSTANT)
 
 class TableParser {
-  lexer: TableLexer
+  lexer: Tokenizer<Kind>
 
   headers: string[]
   data: { [key: string]: string }[]
 
   constructor(source: Readable) {
-    this.lexer = new TableLexer(source)
+    this.lexer = tokenizer(source)
     this.headers = []
     this.data = []
   }
@@ -25,7 +25,7 @@ class TableParser {
   headersState = async () => {
     let token = await this.lexer.next()
     if (!isPipe(token)) {
-      throw new Error(`should got pipe but got ${token.toJSON().kind}`)
+      throw new Error(`should got pipe but got ${token.kind}`)
     }
 
     while (true) {

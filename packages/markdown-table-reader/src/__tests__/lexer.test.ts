@@ -1,6 +1,12 @@
 import { createReadStream } from 'fs'
 
-import { tokens } from '~/src/index'
+import { tokenizer } from '~/src/index'
+
+// PIPE     = 0
+// CONSTANT = 1
+// NEW_LINE = 2
+// SPLIT    = 3
+// EOF      = 4
 
 describe('markdown table lexer', () => {
   test('samples', async () => {
@@ -8,67 +14,69 @@ describe('markdown table lexer', () => {
       {
         given: createReadStream(`${__dirname}/samples/sample1.txt`),
         expected: [
-          { kind: 'PIPE', value: '|' },
-          { kind: 'CONSTANT', value: ' header 1 ' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'CONSTANT', value: ' header 2 ' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'CONSTANT', value: ' header3 ' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'NEW_LINE', value: '\n' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'SPLIT', value: '----------' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'SPLIT', value: '----------' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'SPLIT', value: '---------' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'NEW_LINE', value: '\n' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'CONSTANT', value: ' value 2  ' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'CONSTANT', value: ' value 2  ' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'CONSTANT', value: '         ' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'EOF', value: '' },
+          { kind: 0, value: '|' },
+          { kind: 1, value: ' header 1 ' },
+          { kind: 0, value: '|' },
+          { kind: 1, value: ' header 2 ' },
+          { kind: 0, value: '|' },
+          { kind: 1, value: ' header3 ' },
+          { kind: 0, value: '|' },
+          { kind: 2, value: '\n' },
+          { kind: 0, value: '|' },
+          { kind: 3, value: '----------' },
+          { kind: 0, value: '|' },
+          { kind: 3, value: '----------' },
+          { kind: 0, value: '|' },
+          { kind: 3, value: '---------' },
+          { kind: 0, value: '|' },
+          { kind: 2, value: '\n' },
+          { kind: 0, value: '|' },
+          { kind: 1, value: ' value 2  ' },
+          { kind: 0, value: '|' },
+          { kind: 1, value: ' value 2  ' },
+          { kind: 0, value: '|' },
+          { kind: 1, value: '         ' },
+          { kind: 0, value: '|' },
+          { kind: 4, value: '' },
         ],
       },
       {
         given: createReadStream(`${__dirname}/samples/sample2.txt`),
         expected: [
-          { kind: 'PIPE', value: '|' },
-          { kind: 'CONSTANT', value: ' header 1 ' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'CONSTANT', value: ' header 2 ' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'CONSTANT', value: ' header3 ' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'NEW_LINE', value: '\n' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'SPLIT', value: '----------' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'SPLIT', value: '----------' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'SPLIT', value: '---------' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'NEW_LINE', value: '\n' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'CONSTANT', value: ' value 2  ' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'CONSTANT', value: ' value 2  ' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'CONSTANT', value: '         ' },
-          { kind: 'PIPE', value: '|' },
-          { kind: 'EOF', value: '' },
+          { kind: 0, value: '|' },
+          { kind: 1, value: ' header 1 ' },
+          { kind: 0, value: '|' },
+          { kind: 1, value: ' header 2 ' },
+          { kind: 0, value: '|' },
+          { kind: 1, value: ' header3 ' },
+          { kind: 0, value: '|' },
+          { kind: 2, value: '\n' },
+          { kind: 0, value: '|' },
+          { kind: 3, value: '----------' },
+          { kind: 0, value: '|' },
+          { kind: 3, value: '----------' },
+          { kind: 0, value: '|' },
+          { kind: 3, value: '---------' },
+          { kind: 0, value: '|' },
+          { kind: 2, value: '\n' },
+          { kind: 0, value: '|' },
+          { kind: 1, value: ' value 2  ' },
+          { kind: 0, value: '|' },
+          { kind: 1, value: ' value 2  ' },
+          { kind: 0, value: '|' },
+          { kind: 1, value: '         ' },
+          { kind: 0, value: '|' },
+          { kind: 4, value: '' },
         ],
       },
     ]
 
     for (const testCase of testCases) {
       let idx = 0
-      const toks = tokens(testCase.given)
-      for await (const tok of toks) {
+      const toks = tokenizer(testCase.given)
+
+      let tok
+      while ((tok = await toks.next())) {
         expect(tok.toJSON()).toStrictEqual(testCase.expected[idx])
         idx++
       }
