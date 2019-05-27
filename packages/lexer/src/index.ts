@@ -193,6 +193,10 @@ class StreamLexer {
 
   async accept(values: string): Promise<boolean> {
     const value = await this.next()
+    if (!value) {
+      return false
+    }
+
     if (values.indexOf(value) === -1) {
       this.backup()
       return false
@@ -210,6 +214,9 @@ class StreamLexer {
     const delta = this.pos - this.start
     while (true) {
       const value = await this.next()
+      if (!value) {
+        return false
+      }
       if (values.indexOf(value) !== -1) {
         this.backup()
         return delta !== this.pos - this.start

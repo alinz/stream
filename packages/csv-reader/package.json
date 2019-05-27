@@ -8,7 +8,7 @@
   "lib": "./build/index.js",
   "typings": "./build",
   "scripts": {
-    
+    "test": "jest",
     "clean": "rm -rf build",
     "build:module": "parcel build src/index.ts --no-cache -d build -t node",
     "build:types": "tsc --outDir build -p .",

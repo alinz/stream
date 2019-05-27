@@ -1,5 +1,5 @@
 import { Readable } from 'stream'
-import { Lexer } from '@stream/lexer'
+import { createTokenizer, Token, Lexer, createState, Pusher } from '@stream/lexer'
 
 /* 
 
@@ -15,37 +15,65 @@ CONSTANT, SPLIT, CONSTANT, SPLIT, CONSTANT, SPLIT,
 
 */
 
-export enum TokenKind {
+export enum Kind {
   CONSTANT,
   SPLIT,
+  NEW_LINE,
+  EOF,
 }
 
-const strTokenKind = (kind: TokenKind) => {
-  switch (kind) {
-    case TokenKind.CONSTANT:
-      return 'CONSTANT'
-    case TokenKind.SPLIT:
-      return 'SPLIT'
-  }
-}
+const constantState = createState(async (lexer: Lexer, pusher: Pusher<Kind>) => {
+  await lexer.acceptRunUntil('",\n\0')
 
-export class Token {
-  kind: TokenKind
-  value: string
+  const next = await lexer.peek(1)
 
-  constructor(kind: TokenKind, value: string) {
-    this.kind = kind
-    this.value = value
+  if (next === '"') {
+    await lexer.next()
+    await lexer.acceptRunUntil('"')
+    await lexer.acceptRunUntil(',\n')
   }
 
-  toJSON() {
-    return { kind: strTokenKind(this.kind), value: this.value }
+  pusher.push(new Token(Kind.CONSTANT, lexer.content()))
+  lexer.ignore()
+
+  return mainState
+})
+
+const splitState = createState(async (lexer: Lexer, pusher: Pusher<Kind>) => {
+  await lexer.next()
+  pusher.push(new Token(Kind.SPLIT, lexer.content()))
+  lexer.ignore()
+
+  return mainState
+})
+
+const newLineState = createState(async (lexer: Lexer, pusher: Pusher<Kind>) => {
+  await lexer.next()
+  pusher.push(new Token(Kind.NEW_LINE, lexer.content()))
+  lexer.ignore()
+
+  return mainState
+})
+
+const eofState = createState(async (lexer: Lexer, pusher: Pusher<Kind>) => {
+  await lexer.next()
+  pusher.push(new Token(Kind.EOF, null))
+  lexer.ignore()
+
+  return null
+})
+
+const mainState = createState(async (l: Lexer, pusher: Pusher<Kind>) => {
+  switch (await l.peek(1)) {
+    case ',':
+      return splitState
+    case '\n':
+      return newLineState
+    case null:
+      return eofState
+    default:
+      return constantState
   }
-}
+})
 
-type Push = (token: Token) => void
-type StateFn = (l: Lexer, push: Push) => Promise<StateFn>
-
-export class CSVLexer {
-  lexer: Lexer
-}
+export const tokenizer = (source: Readable) => createTokenizer<Kind>(source, constantState)
