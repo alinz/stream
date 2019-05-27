@@ -1,5 +1,5 @@
 {
-  "name": "@stream/lexer",
+  "name": "@stream/markdown-table-reader",
   "version": "1.0.0",
   "browserslist": [
     "last 1 Chrome version"
@@ -14,7 +14,9 @@
     "build:types": "tsc --outDir build -p .",
     "build": "yarn clean; yarn build:module; yarn build:types"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@stream/lexer": "1.0.0"
+  },
   "devDependencies": {
     "@types/jest": "24.0.12",
     "@types/node": "12.0.0",

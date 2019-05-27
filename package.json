@@ -7,7 +7,9 @@
   ],
   "scripts": {
     "test": "lerna run test",
-    "build": "lerna run build"
+    "build": "lerna run build",
+    "clean": "lerna run clean",
+    "clean:all": "yarn clean; lerna clean -y"
   },
   "devDependencies": {
     "@types/node": "12.0.2",
