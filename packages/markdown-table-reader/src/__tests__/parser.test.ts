@@ -7,11 +7,14 @@ describe('markdown table parser', () => {
     const testCases = [
       {
         given: createReadStream(`${__dirname}/samples/sample1.txt`),
-        expected: [{ 'header 1': 'value 2', 'header 2': 'value 2', header3: '' }],
+        expected: {
+          headers: ['header 1', 'header 2', 'header3'],
+          data: [{ 'header 1': 'value 2', 'header 2': 'value 2', header3: '' }],
+        },
       },
       {
         given: createReadStream(`${__dirname}/samples/sample2.txt`),
-        expected: [{ 'header 1': 'value 2', 'header 2': 'value 2', header3: '' }],
+        expected: { headers: ['header 1', 'header 2', 'header3'], data: [{ 'header 1': 'value 2', 'header 2': 'value 2', header3: '' }] },
       },
     ]
 

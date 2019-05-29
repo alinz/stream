@@ -10,6 +10,11 @@ const isNewLine = createIsFn(Kind.NEW_LINE)
 const isEOF = createIsFn(Kind.EOF)
 const isConstant = createIsFn(Kind.CONSTANT)
 
+type Result = {
+  headers: string[]
+  data: { [key: string]: string }[]
+}
+
 class TableParser {
   lexer: Tokenizer<Kind>
 
@@ -74,17 +79,17 @@ class TableParser {
     return null
   }
 
-  async parse(): Promise<{ [key: string]: string }[]> {
+  async parse(): Promise<Result> {
     let state = this.headersState
     while (state) {
       state = await state()
     }
 
-    return this.data
+    return { headers: this.headers, data: this.data }
   }
 }
 
-export const parse = (source: Readable): Promise<{ [key: string]: string }[]> => {
+export const parse = (source: Readable): Promise<Result> => {
   const parser = new TableParser(source)
   return parser.parse()
 }
