@@ -1,5 +1,5 @@
 {
-  "name": "@stream/markdown-table-reader",
+  "name": "@stream/parser",
   "version": "1.0.0",
   "browserslist": [
     "last 1 Chrome version"
@@ -15,8 +15,7 @@
     "build": "yarn clean; yarn build:module; yarn build:types"
   },
   "dependencies": {
-    "@stream/lexer": "1.0.0",
-    "@stream/parser": "1.0.0"
+    "@stream/lexer": "1.0.0"
   },
   "devDependencies": {
     "@types/jest": "24.0.12",
