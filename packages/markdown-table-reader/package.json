@@ -1,18 +1,18 @@
 {
   "name": "@stream/markdown-table-reader",
   "version": "1.0.0",
+  "license": "MIT",
   "browserslist": [
     "last 1 Chrome version"
   ],
-  "main":"./build/index.js",
-  "lib": "./build/index.js",
-  "typings": "./build",
+  "main": "./dist/index.js",
+  "module": "./dist/index.esm.js",
+  "sideEffects": false,
+  "typings": "./dist",
   "scripts": {
     "test": "jest",
-    "clean": "rm -rf build",
-    "build:module": "parcel build src/index.ts --no-cache -d build -t node",
-    "build:types": "tsc --outDir build -p .",
-    "build": "yarn clean; yarn build:module; yarn build:types"
+    "clean": "rm -rf dist; rm -rf .rpt2_cache",
+    "build": "yarn clean; rollup -c"
   },
   "dependencies": {
     "@stream/lexer": "1.0.0",
@@ -21,11 +21,13 @@
   "devDependencies": {
     "@types/jest": "24.0.12",
     "@types/node": "12.0.0",
-    "babel-core": "6.26.3",
-    "babel-plugin-root-import": "6.1.0",
     "jest": "24.8.0",
-    "parcel-bundler": "1.12.3",
     "ts-jest": "24.0.2",
-    "typescript": "3.4.5"
+    "tslib": "1.9.3",
+    "typescript": "3.5.1",
+    "rollup-plugin-typescript2": "0.21.1",
+    "rollup-plugin-size-snapshot": "0.9.0",
+    "rollup-plugin-terser": "5.0.0",
+    "rollup": "1.12.5"
   }
 }

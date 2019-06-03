@@ -333,10 +333,12 @@ export interface Tokenizer<Kind> {
   peek(): Promise<Token<Kind>>
 }
 
-export const createState = <Kind>(fn: (l: Lexer, push: Pusher<Kind>) => Promise<State<Kind>>): State<Kind> => {
+const createState = <Kind>(fn: (l: Lexer, push: Pusher<Kind>) => Promise<State<Kind>>): State<Kind> => {
   return { next: fn }
 }
 
-export const createTokenizer = <Kind>(source: Readable, initialState: State<Kind>, size: number = 2 ** 16): Tokenizer<Kind> => {
+const createTokenizer = <Kind>(source: Readable, initialState: State<Kind>, size: number = 2 ** 16): Tokenizer<Kind> => {
   return new TokenizerImpl<Kind>(source, initialState, size)
 }
+
+export { createState, createTokenizer }

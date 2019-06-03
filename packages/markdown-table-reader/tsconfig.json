@@ -7,7 +7,8 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "target": "es6",
-    "module": "commonjs",
+    "module": "esnext",
+    "esModuleInterop": true,
 
     "moduleResolution": "node",
     "baseUrl": ".",
@@ -17,10 +18,8 @@
 
     "strictNullChecks": false,
     "sourceMap": true,
-    "lib": ["es2015", "es2017.sharedmemory", "dom", "esnext.asynciterable", "es2017"],
-
-    "jsx": "react",
-
+    "lib": ["es2015", "es2017.sharedmemory", "esnext.asynciterable", "es2017"],
+    
     "rootDir": "./src"
   },
   "exclude": ["node_modules"],
