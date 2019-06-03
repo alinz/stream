@@ -9,6 +9,10 @@
   "module": "./dist/index.esm.js",
   "sideEffects": false,
   "typings": "./dist",
+  "files": [
+    "package.json",
+    "dist/**"
+  ],
   "scripts": {
     "test": "jest",
     "clean": "rm -rf dist; rm -rf .rpt2_cache",
@@ -16,6 +20,7 @@
   },
   "dependencies": {},
   "devDependencies": {
+    "@stream/buffer": "1.0.0",
     "@types/jest": "24.0.12",
     "@types/node": "12.0.0",
     "jest": "24.8.0",

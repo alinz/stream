@@ -22,7 +22,7 @@ const readAll = (input: Readable): Promise<string> => {
   })
 }
 
-const asyncWrite = (data: string, w: Writable) => {
+const asyncWrite = (data: string, w: NodeJS.WritableStream) => {
   return new Promise((resolve, reject) => {
     w.write(data, (err) => {
       if (err) {
@@ -35,12 +35,16 @@ const asyncWrite = (data: string, w: Writable) => {
   })
 }
 
-export const write = async (input: Readable, output: Writable) => {
+export const write = async (input: Readable, output: NodeJS.WritableStream) => {
   const content = await readAll(input)
+
   const data = JSON.parse(content) as DataInput
 
   await asyncWrite(data.headers.join(','), output)
+
   for (const d of data.data) {
+    await asyncWrite('\n', output)
+
     let firstItem = true
     for (const header of data.headers) {
       if (!firstItem) {

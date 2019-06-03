@@ -35,7 +35,6 @@ class TableParser {
 
     while (true) {
       token = await this.lexer.next()
-
       if (isEOF(token) || isNewLine(token)) {
         break
       } else if (isConstant(token)) {
