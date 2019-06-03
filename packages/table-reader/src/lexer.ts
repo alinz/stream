@@ -1,6 +1,6 @@
 import { Readable } from 'stream'
 
-import { createState, createTokenizer, Lexer, Pusher, Token } from '@stream/lexer'
+import { createState, createTokenizer, Lexer, Pusher, Token } from 'stream.lexer'
 
 /* 
 

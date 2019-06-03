@@ -1,4 +1,4 @@
-import { ReadableBuffer, WritableBuffer } from '@stream/buffer'
+import { ReadableBuffer, WritableBuffer } from 'stream.buffer'
 import { write } from '~/src/index'
 
 describe('csv-writer', () => {

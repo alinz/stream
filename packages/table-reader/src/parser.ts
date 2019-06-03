@@ -1,7 +1,7 @@
 import { Readable } from 'stream'
 
-import { Tokenizer } from '@stream/lexer'
-import { createIsFn } from '@stream/parser'
+import { Tokenizer } from 'stream.lexer'
+import { createIsFn } from 'stream.parser'
 
 import { tokenizer, Kind } from './lexer'
 

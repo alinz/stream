@@ -10,7 +10,8 @@
     "bundle": "yarn; lerna bootstrap",
     "build": "lerna run build",
     "clean": "lerna run clean",
-    "clean:all": "yarn clean; lerna clean -y"
+    "clean:all": "yarn clean; lerna clean -y",
+    "publish": "lerna publish"
   },
   "devDependencies": {
     "@types/node": "12.0.2",
